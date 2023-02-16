@@ -1,0 +1,19 @@
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      dockerimage:
+        required: true
+        type: string
+      script:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ${{ inputs.dockerimage }}
+      - run: ${{ inputs.script }}

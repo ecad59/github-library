@@ -1,0 +1,56 @@
+name: test
+
+on:
+  workflow_call:
+    inputs:
+      install_script:
+        required: true
+        type: string
+      test_script:
+        required: true
+        type: string
+      php_versions:
+        required: true
+        type: array
+      mysql_version:
+        required: true
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: ubuntu
+    services:
+      # https://docs.docker.com/samples/library/mysql/
+      mydb:
+        image: mysql:${{ inputs.mysql_version }}
+        env:
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    strategy:
+      fail-fast: true
+      matrix:
+        php-versions: ${{ inputs.php_versions }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP, extensions and composer with shivammathur/setup-php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, gd, iconv, json, mbstring
+        env:
+          update: true
+
+      - name: install
+        run: ${{ inputs.install_script }}
+
+      - name: Test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: ${{ inputs.test_script }}
+          
+
+    

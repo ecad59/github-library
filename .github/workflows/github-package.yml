@@ -1,0 +1,27 @@
+name: github-package
+
+on:   
+  workflow_call:
+    inputs:
+      path:
+        required: true
+        type: string  
+      repo:
+        required: true
+        type: string
+      package_name:
+        required: true
+        type: string
+
+jobs:
+  package:
+    name: package-Docker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: package-Docker
+      run: |
+        cd ${{ inputs.path }}
+        docker login http://ghcr.io -u ${{ secrets.USER_PACKAGE }} -p ${{ secrets.TOKEN_PACKAGE }}
+        docker build --file Dockerfile -t ghcr.io/${{ inputs.repo }}/${{ inputs.package_name }}:latest .
+        docker push ghcr.io/${{ inputs.repo }}/${{ inputs.package_name }}:latest

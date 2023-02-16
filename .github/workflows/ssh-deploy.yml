@@ -1,0 +1,22 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: config-instance
+    runs-on: ubuntu-latest
+    steps:
+    - name: config-instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key : ${{ secrets.KEY }}
+        script: ${{ inputs.script }}
+        

@@ -1,0 +1,49 @@
+name: CI/CD Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: ecad59/github-library/.github/workflows/build.yml@main
+    secrets: inherit
+    with:
+      dockerimage: "" # string
+      script: "" # string
+    
+  test:
+    uses: ecad59/github-library/.github/workflows/mysql-php-test.yml@main
+    secrets: inherit
+    needs: build
+    with:
+      mysql_version: "" # string
+      php_versions: [] # array
+      install_script: "" # string
+      test_script: "" # string
+
+
+  package:
+    uses: ecad59/github-library/.github/workflows/github-package.yml@main
+    secrets: inherit
+    needs: test
+    with:
+      path: "" # string
+      repo: "" # string
+      package_name: "" # string
+
+  deploy:
+    uses: ecad59/github-library/.github/workflows/ssh-deploy.yml@main
+    secrets: inherit
+    needs: package
+    with:
+      script: "" # string
+
+  release:
+    uses: ecad59/github-library/.github/workflows/github-release.yml@main
+    secrets: inherit
+    needs: deploy
+    with:
+      pre_release: # boolean
+      path: "" # string

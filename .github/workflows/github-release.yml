@@ -1,0 +1,28 @@
+name: release
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: true
+        type: string
+      pre_release:
+        required: true
+        type: boolean
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: release-${{ steps.date.outputs.date }}
+          prerelease: ${{ inputs.pre_release }}
+          title: release-${{ steps.date.outputs.date }}
+          files: ${{ inputs.path }}

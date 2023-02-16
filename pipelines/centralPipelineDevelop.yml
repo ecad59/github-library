@@ -1,0 +1,24 @@
+name: CI/CD Develop
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    uses: ecad59/github-library/.github/workflows/build.yml@main
+    secrets: inherit
+    with:
+      dockerimage: "" # string
+      script: "" # string
+    
+  test:
+    uses: ecad59/github-library/.github/workflows/mysql-php-test.yml@main
+    secrets: inherit
+    needs: build
+    with:
+      mysql_version: "" # string
+      php_versions: [] # array
+      install_script: "" # string
+      test_script: "" # string
